@@ -10,4 +10,4 @@
 
 # 시연 GIF
 
-![image](https://github.com/user-attachments/assets/2fd05e75-45eb-49a3-bebf-c6e35e5aa858)
+![로그인로그아웃시연](https://github.com/user-attachments/assets/7eb0b865-6f54-4547-9e4e-f6091a082721)
