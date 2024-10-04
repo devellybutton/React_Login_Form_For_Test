@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './LogoutButton.module.css';
 
 const LogoutButton = ({ setMessage }) => {
   const handleLogout = async () => {
@@ -13,14 +14,15 @@ const LogoutButton = ({ setMessage }) => {
       }
 
       const result = await response.json();
-      setMessage(result.message);
+      console.log("로그아웃 결과: ", result)
+      setMessage('로그아웃 완료되었습니다.');
     } catch (error) {
       console.error('로그아웃 중 오류 발생:', error);
       setMessage('로그아웃 중 오류가 발생했습니다.');
     }
   };
 
-  return <button onClick={handleLogout}>로그아웃</button>;
+  return <button className={styles.logoutButton} onClick={handleLogout}>로그아웃</button>;
 };
 
 export default LogoutButton;
