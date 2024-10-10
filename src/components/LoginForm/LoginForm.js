@@ -3,6 +3,7 @@ import { io } from 'socket.io-client';
 import useSession from '../../hooks/useSession';
 import LogoutButton from '../LogoutButton/LogoutButton';
 import styles from './LoginForm.module.css';
+import Cookies from 'js-cookie';
 
 const LoginForm = ({ setMessage }) => {
   const [email, setEmail] = useState('');
@@ -16,6 +17,19 @@ const LoginForm = ({ setMessage }) => {
 
   // 세션 훅 사용
   useSession(setMessage, isLoggedIn); // 로그인 상태 전달
+
+  // autoLogin 쿠키에서 자동 로그인 상태 불러오기
+  useEffect(() => {
+    const storedAutoLogin = Cookies.get('autoLogin') === 'true';
+    if (storedAutoLogin) {
+      setAutoLogin(true);
+      const storedEmail = localStorage.getItem('userEmail');
+      if (storedEmail) {
+        setEmail(storedEmail);
+        setPassword('●●●●●●●');
+      }
+    }
+  }, []);
 
   // 로그아웃 함수
   const logoutWithRetries = useCallback(async () => {
@@ -36,8 +50,19 @@ const LoginForm = ({ setMessage }) => {
         await response.json();
 
         setMessage('로그아웃이 완료되었습니다.');
-        setEmail('');
-        setPassword('');
+
+        // 로그아웃이 완료된 후에도 자동 로그인 상태라면 이메일과 가짜 비밀번호 설정
+        if (autoLogin) {
+          const storedEmail = localStorage.getItem('userEmail');
+          if (storedEmail) {
+            setEmail(storedEmail); // 이메일 유지
+            setPassword('●●●●●●●'); // 가짜 비밀번호 유지
+          }
+        } else {
+          setEmail(''); // 자동 로그인 해제 시 이메일 초기화
+          setPassword(''); // 비밀번호도 초기화
+        }
+
         console.log('로그아웃이 완료되었습니다.');
         return;
       } catch (error) {
@@ -50,7 +75,7 @@ const LoginForm = ({ setMessage }) => {
         }
       }
     }
-  }, [setMessage]);
+  }, [setMessage, autoLogin]);
 
   // 소켓 연결 종료 및 입력폼 초기화
   // 로그아웃 이후 진행할 것들
@@ -64,8 +89,8 @@ const LoginForm = ({ setMessage }) => {
     // 모든 세션과 로그인 상태 초기화
     setIsLoggingOut(false); // 로그인 중 = 아님
     setIsLoggedIn(false); // 로그인 상태 = 아님
-    setEmail(''); // 이메일 폼 초기화
-    setPassword(''); // 비밀번호창 초기화
+    // setEmail(autoLogin ? localStorage.getItem('userEmail') : ''); // 자동 로그인 체크 시 이메일 설정
+    // setPassword(autoLogin ? '●●●●●●●' : ''); // 가짜 비밀번호 설정
     setSessionWarning(false); // 세션 경고 = 없어야 됨
     setTimeLeft(10); // 타이머 초기화
   }, [socket]);
@@ -104,6 +129,15 @@ const LoginForm = ({ setMessage }) => {
       await response.json();
       setMessage('로그인 완료되었습니다.');
       setIsLoggedIn(true);
+
+      // 자동 로그인 체크가 되어 있을 때만 이메일 저장
+      if (autoLogin) {
+        const storedEmail = localStorage.getItem('userEmail');
+        if (storedEmail) {
+          setEmail(storedEmail); 
+          setPassword('●●●●●●●'); 
+        }
+      }
 
       // 소켓 연결
       const newSocket = io("http://localhost:3000", { withCredentials: true });
