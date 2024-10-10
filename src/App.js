@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import './App.css';
-import LoginForm from './components/LoginForm';
-import LogoutButton from './components/LogoutButton';
+import LoginForm from './components/LoginForm/LoginForm';
 
 function App() {
   const [message, setMessage] = useState('');
@@ -15,9 +14,6 @@ function App() {
 
         <LoginForm setMessage={setMessage} />
 
-        <div className="button-container">
-          <LogoutButton setMessage={setMessage} />
-        </div>
       </header>
     </div>
   );
