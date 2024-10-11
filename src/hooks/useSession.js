@@ -1,10 +1,11 @@
 import { useEffect, useCallback } from 'react';
+import apiUrl from '../ApiUrl';
 
 const useSession = (setMessage, isLoggedIn) => {
   const startSessionMonitoring = useCallback(async () => {
     if (!isLoggedIn) return;
     try {
-      const monitorResponse = await fetch('http://localhost:3000/session/monitor', {
+      const monitorResponse = await fetch(`${apiUrl}/session/monitor`, {
         method: 'POST',
         credentials: 'include',
       });
