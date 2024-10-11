@@ -14,7 +14,7 @@ const LoginForm = ({ setMessage }) => {
   const [showPassword, setShowPassword] = useState('');
   const [autoLogin, setAutoLogin] = useState(false);
   const [sessionWarning, setSessionWarning] = useState(false);
-  const [socket, setSocket] = useState(null);
+  const [setSocket] = useState(null);
   const [timeLeft, setTimeLeft] = useState(10);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -74,7 +74,7 @@ const LoginForm = ({ setMessage }) => {
 
     setIsLoggedIn(false);
     setMessage('로그아웃되었습니다.');
-  }, [isLoggingOut, logoutWithRetries, setMessage]);
+  }, [isLoggingOut, logoutWithRetries, setMessage, autoLogin]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
