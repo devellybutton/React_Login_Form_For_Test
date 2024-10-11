@@ -1,0 +1,59 @@
+name: Caugannies-login-test # 워크플로우의 이름을 설정
+
+on: # 워크플로우의 실행 조건
+  push: # push 이벤트를 기준으로 설정
+    branches: # 푸시 이벤트가 발생하는 브랜치를 지정
+      - master # master 브랜치
+
+jobs:
+  build:
+    name: react build & deploy
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: ./src # 기본 워킹 디렉토리 설정
+
+    steps:
+      - name: checkout Github Action # 소스 코드를 체크아웃하는 단계
+        uses: actions/checkout@v3 # GitHub Actions의 체크아웃 액션 사용
+
+      # npm package cache 사용하기 : https://github.com/actions/cache/blob/main/examples.md#node---npm
+      - name: Get npm cache directory # npm 캐시 디렉토리를 얻는 단계
+        id: npm-cache-dir # 이 단계의 ID 설정
+        run: |
+          echo "::set-output name=dir::$(npm config get cache)" # npm 캐시 디렉토리를 출력하여 변수로 설정
+
+      - uses: actions/cache@v3 # npm 캐시를 사용하는 액션
+        id: npm-cache # 이 단계의 ID 설정
+        with:
+          path: ${{ steps.npm-cache-dir.outputs.dir }} # npm 캐시 디렉토리 경로 설정
+          key: ${{ runner.os }}-node-${{ hashFiles('**/package-lock.json') }} # 캐시 키 설정
+          restore-keys: |
+            ${{ runner.os }}-node- # 캐시를 복원할 키 설정
+
+      - name: install npm dependencies # npm 의존성 설치 단계
+        run: npm install # npm을 사용하여 의존성 설치
+
+      - name: react build # React 애플리케이션 빌드 단계
+        env:
+          REACT_APP_API_URL: ${{ secrets.REACT_APP_API_URL }} # 환경 변수 추가
+        run: npm run build # npm을 사용하여 빌드 실행
+
+      # aws user 연결
+      - name: Configure AWS credentials # AWS 자격 증명을 구성하는 단계
+        uses: aws-actions/configure-aws-credentials@v1 # AWS 자격 증명 구성 액션 사용
+        with:
+          aws-access-key-id: ${{ secrets.AWS_S3_ACCESS_KEY_ID }} # AWS 액세스 키 ID를 시크릿에서 가져오기
+          aws-secret-access-key: ${{ secrets.AWS_S3_SECRET_ACCESS_KEY }} # AWS 시크릿 액세스 키를 시크릿에서 가져오기
+          aws-region: ${{secrets.AWS_S3_REGION }} # AWS 리전 설정
+
+      # react 빌드한 build 폴더의 내용물을 s3로 업로드
+      - name: Upload to S3
+        run: |
+          aws s3 sync build/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/test-login --delete
+
+      # 업로드한 s3 파일을 각 CDN 캐시 무효화하여 리프레시 하기
+      - name: CloudFront Invalidation # CloudFront 캐시를 무효화하는 단계
+        run: |
+          aws cloudfront create-invalidation \
+            --distribution-id ${{ secrets.AWS_DISTRIBUTION_ID }} --paths "/*"
