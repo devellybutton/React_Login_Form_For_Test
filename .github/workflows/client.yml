@@ -50,7 +50,7 @@ jobs:
       # react 빌드한 build 폴더의 내용물을 s3로 업로드
       - name: Upload to S3
         run: |
-          aws s3 sync build/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/test-login/build --delete
+          aws s3 sync ./build/ s3://${{ secrets.AWS_S3_BUCKET_NAME }}/test-login--delete
 
       # 업로드한 s3 파일을 각 CDN 캐시 무효화하여 리프레시 하기
       - name: CloudFront Invalidation # CloudFront 캐시를 무효화하는 단계
