@@ -14,7 +14,7 @@ const LoginForm = ({ setMessage }) => {
   const [showPassword, setShowPassword] = useState('');
   const [autoLogin, setAutoLogin] = useState(false);
   const [sessionWarning, setSessionWarning] = useState(false);
-  const [setSocket] = useState(null);
+  const [socket, setSocket] = useState(null);
   const [timeLeft, setTimeLeft] = useState(10);
   const [isLoggingOut, setIsLoggingOut] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -33,7 +33,7 @@ const LoginForm = ({ setMessage }) => {
   // 로그아웃 함수
   const logoutWithRetries = useCallback(async () => {
     let retryCount = 0;
-    const maxRetries = 5;
+    const maxRetries = 3;
 
     while (retryCount < maxRetries) {
       try {
@@ -124,8 +124,8 @@ const LoginForm = ({ setMessage }) => {
       };
   
       try {
-        // 최대 시도 횟수 5회로 제한함.
-        const newSocket = await connectSocket(5); 
+        // 최대 시도 횟수 3회로 제한함.
+        const newSocket = await connectSocket(3); 
         setSocket(newSocket);
   
         newSocket.on('sessionExpiryWarning', handleSessionExpiryWarning);
@@ -133,12 +133,24 @@ const LoginForm = ({ setMessage }) => {
       } catch (error) {
         console.error('소켓 연결 중 오류 발생:', error);
         setMessage('소켓 연결에 실패했습니다.');
+
+        // 로그인 실패 시 소켓 통신 끊기
+        if (socket) {
+          socket.disconnect();
+          setSocket(null);
+        }
       }
     } catch (error) {
       console.error('로그인 중 오류 발생:', error);
       setMessage('로그인 중 오류가 발생했습니다.');
+
+    // 로그인 실패해서 오류나면 꼭 소켓 통신 중단시켜야됨.
+    if (socket) {
+      socket.disconnect();
+      setSocket(null);
     }
-  };
+  }
+};
 
   // 모니터링 요청
   const startSessionMonitoring = async () => {
