@@ -37,7 +37,7 @@ const LoginForm = ({ setMessage }) => {
 
     while (retryCount < maxRetries) {
       try {
-        const response = await fetch(`${apiUrl}/sign-out`, {
+        const response = await fetch(`${apiUrl}/auth/sign-out`, {
           method: 'POST',
           credentials: 'include',
         });
