@@ -22,14 +22,6 @@ const LoginForm = ({ setMessage }) => {
   // 세션 훅 사용
   useSession(setMessage, isLoggedIn);
 
-  // autoLogin 쿠키에서 자동 로그인 상태 불러오기
-  useEffect(() => {
-    const storedAutoLogin = Cookies.get('autoLogin') === 'true';
-    if (storedAutoLogin) {
-      setAutoLogin(storedAutoLogin);
-    }
-  }, []);
-
   // 로그아웃 함수
   const logoutWithRetries = useCallback(async () => {
     let retryCount = 0;
