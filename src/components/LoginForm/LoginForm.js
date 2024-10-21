@@ -3,7 +3,6 @@ import { io } from 'socket.io-client';
 import useSession from '../../hooks/useSession';
 import LogoutButton from '../LogoutButton/LogoutButton';
 import styles from './LoginForm.module.css';
-import Cookies from 'js-cookie';
 import { TextField, Button, Checkbox, FormControlLabel, InputAdornment, IconButton } from '@mui/material';
 import { Visibility, VisibilityOff } from '@mui/icons-material';
 import apiUrl from '../../ApiUrl';
