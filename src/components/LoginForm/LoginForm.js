@@ -54,18 +54,21 @@ const LoginForm = ({ setMessage }) => {
 
   const handleLogout = useCallback(async () => {
     if (isLoggingOut) return;
+
     setIsLoggingOut(true);
     await logoutWithRetries();
 
-    // 자동로그인이 아닌 경우 입력폼 초기화
-    if (!autoLogin) {
-      setEmail('');
-      setPassword('');
-    }
+    // 알림 숨기기
+    setSessionWarning(false);
+
+    // 입력폼 초기화
+    setEmail('');
+    setPassword('');
 
     setIsLoggedIn(false);
+    console.log("로그아웃 완료");
     setMessage('로그아웃되었습니다.');
-  }, [isLoggingOut, logoutWithRetries, setMessage, autoLogin]);
+  }, [isLoggingOut, logoutWithRetries, setMessage]);
 
   const handleLogin = async (event) => {
     event.preventDefault();
